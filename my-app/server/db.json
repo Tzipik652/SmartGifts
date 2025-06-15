@@ -1,0 +1,57 @@
+{
+    "users": [
+        {
+            "id": "1",
+            "name": "Tzipi",
+            "email": "tzipik652@gmail.com",
+            "password": "123456",
+            "role": "admin"
+        },
+        {
+            "id": "2",
+            "name": "Rachel",
+            "email": "rachel@gmail.com",
+            "password": "123456",
+            "role": "customer"
+        },
+        {
+            "id": "3",
+            "name": "Batya",
+            "email": "batya@gmail.com",
+            "password": "123456",
+            "role": "customer"
+        }
+    ],
+    "products": [
+        {
+            "id": "1",
+            "name": "Product 1",
+            "description": "Description for Product 1",
+            "price": 100,
+            "imageUrl": "https://via.placeholder.com/150"
+        },
+        {
+            "id": "2",
+            "name": "Product 2",
+            "description": "Description for Product 2",
+            "price": 200,
+            "imageUrl": "https://via.placeholder.com/150"
+        }
+    ],
+    "opinions": [
+        {
+            "id": "1",
+            "productId": "1",
+            "userId": "1",
+            "rating": 5,
+            "comment": "Great product!"
+        },
+        {
+            "id": "2",
+            "productId": "2",
+            "userId": "1",
+            "rating": 4,
+            "comment": "Very good quality."
+        }
+    ]
+}

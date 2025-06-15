@@ -12,7 +12,8 @@ type PrivateRouteProps = {
   children: JSX.Element;
 };
 
-const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
+const PrivateRoute: React.FC<PrivateRouteProps> = (props: { children: any; }) => {
+  const { children } = props;
   return isAuthenticated() ? children : <Navigate to="/login" replace />;
 };
 

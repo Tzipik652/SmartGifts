@@ -13,7 +13,6 @@ import PrivateRoute from './components/PrivateRoute/PrivateRoute';
 
 const App = () => {
   return (
-    <Router>
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -24,7 +23,6 @@ const App = () => {
           <Route path="/add-product" element={<PrivateRoute><AddProduct /></PrivateRoute>} /> 	{/* הוספת מוצר(מנהל) הוסיפי LAZY LOADDING */}
         </Route>
       </Routes>
-    </Router>
   );
 };
 
