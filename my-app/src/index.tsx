@@ -6,8 +6,8 @@ import reportWebVitals from "./reportWebVitals";
 import { ThemeProvider, CssBaseline } from "@mui/material";
 import theme from "./theme";
 import { BrowserRouter } from "react-router-dom";
-import { UserProvider } from "./context/AuthContext";
-
+import { Provider } from 'react-redux';
+import { store } from './redux/store';
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
@@ -15,13 +15,13 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-    <UserProvider>
+      <Provider store={store}>
+
      <ThemeProvider theme={theme}>
       <CssBaseline />
       <App />
     </ThemeProvider>
-    </UserProvider>
-
+      </Provider>
     </BrowserRouter>
   </React.StrictMode>
 );
