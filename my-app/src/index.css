@@ -11,3 +11,16 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+@font-face {
+  font-family: 'DanaYad';
+  src: url('../public/fonts/DanaYadAlefAlefAlef-Normal.eot');
+   src:    url('../public/fonts/DanaYadAlefAlefAlef-Normal.woff') format('woff'),
+       url('../public/fonts/DanaYadAlefAlefAlef-Normal.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.danaYad-text {
+  font-family: 'DanaYad', cursive;
+}
+
