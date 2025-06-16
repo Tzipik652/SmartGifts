@@ -20,8 +20,9 @@ import InputAdornment from "@mui/material/InputAdornment";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import GoogleIcon from "@mui/icons-material/Google";
-import { login, loginWithGoogle, resetPassword } from "../services/authService";
-
+import { login, loginWithGoogle, resetPassword,getUserRoleByEmail } from "../services/authService";
+import { useDispatch } from "react-redux";
+import { setUser } from "../redux/authSlice";
 const LoginSchema = Yup.object({
   email: Yup.string().email("אימייל לא תקין").required("שדה חובה"),
   password: Yup.string().required("שדה חובה"),
@@ -34,30 +35,47 @@ const Login = () => {
   const [resetOpen, setResetOpen] = useState(false);
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const dispatch = useDispatch();
 
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
   };
 
-  const handleSubmit = async (values: { email: string; password: string }) => {
-    setError("");
-    try {
-      await login(values.email, values.password);
-      navigate("/");
-    } catch (e: any) {
-      setError("אימייל או סיסמה לא נכונים");
-    }
-  };
+const handleSubmit = async (values: { email: string; password: string }) => {
+  setError("");
+  try {
+    const user = await login(values.email, values.password);
+    dispatch(
+      setUser({
+        username: user.displayName ?? user.dbUser?.name ?? "",
+        isAdmin: user.dbUser?.role === "admin",
+      })
+    );
+    navigate("/");
+  } catch (e: any) {
+    setError(e.message || "התחברות נכשלה");
+  }
+};
+const handleGoogleLogin = async () => {
+  setError("");
+  try {
+    const user = await loginWithGoogle();
 
-  const handleGoogleLogin = async () => {
-    setError("");
-    try {
-      await loginWithGoogle();
-      navigate("/");
-    } catch (e: any) {
-      setError("התחברות עם גוגל נכשלה");
-    }
-  };
+    // שליפת role מהשרת (json-server)
+    let role = await getUserRoleByEmail(user.email ?? "") || "customer";
+    
+
+    dispatch(
+      setUser({
+        username: user.displayName ?? user.email ?? "",
+        isAdmin: role === "admin",
+      })
+    );
+    navigate("/");
+  } catch (e: any) {
+    setError("התחברות עם גוגל נכשלה");
+  }
+};
 
   const handleResetPassword = async () => {
     setResetMsg("");

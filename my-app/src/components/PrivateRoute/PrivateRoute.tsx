@@ -1,20 +1,21 @@
 // src/components/PrivateRoute.tsx
-import React, { JSX } from 'react';
-import { Navigate } from 'react-router-dom';
-
-const isAuthenticated = (): boolean => {
-  // בדיקה פשוטה אם יש טוקן ב-localStorage
-  const token = localStorage.getItem('token');
-  return token !== null;
-};
+import React from "react";
+import { Navigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { selectUsername } from "../../redux/authSlice";
 
 type PrivateRouteProps = {
-  children: JSX.Element;
+  children: React.ReactNode;
 };
 
-const PrivateRoute: React.FC<PrivateRouteProps> = (props: { children: any; }) => {
-  const { children } = props;
-  return isAuthenticated() ? children : <Navigate to="/login" replace />;
+const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
+  const username = useSelector(selectUsername);
+
+  if (!username) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
 };
 
 export default PrivateRoute;

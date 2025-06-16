@@ -197,10 +197,10 @@ const Register = () => {
                   },
                 }}
               />
-                  <ReCAPTCHA
-        sitekey="6LdzuWErAAAAANvBjp1WTlrNSX3ZQlNL2ixJHMwm"
-        onChange={setCaptchaToken}
-      />
+               <ReCAPTCHA
+                sitekey="6LdzuWErAAAAANvBjp1WTlrNSX3ZQlNL2ixJHMwm"
+                onChange={setCaptchaToken}
+              />
               <Button
                 fullWidth
                 type="submit"
