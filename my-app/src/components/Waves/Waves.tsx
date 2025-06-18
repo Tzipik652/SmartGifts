@@ -146,7 +146,7 @@ interface WavesProps {
 const Waves: React.FC<WavesProps> = ({
   lineColor = "black",
   backgroundColor = "transparent",
-  waveSpeedX = 0.0125,
+  waveSpeedX = 0.0150,
   waveSpeedY = 0.005,
   waveAmpX = 32,
   waveAmpY = 16,

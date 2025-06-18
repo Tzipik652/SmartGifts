@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 
 import logo from "../assets/SmartGifts Logo in Teal and Coral.png";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -17,132 +17,40 @@ import {
   Container,
   Paper,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout, selectUsername, selectIsAdmin } from "../redux/authSlice";
-import MyCart from "./MyCart";
-import Profile from "./Profile";
-import AddProduct from "./AddProduct";
-import Lottie from "lottie-react";
-import shopAnimation from "../assets/shop-animation.json";
 import Waves from "../components/Waves/Waves";
 import TypingText from "../components/TypingText";
-import ProductsList from "./ProductsList";
+import { clearCart, selectCartItemCount } from "../redux/cartSlice";
 
 interface HomeProps {}
 
 const Home: FC<HomeProps> = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
-  const cartCount = useSelector((state: any) => state.myCart?.items?.length || 0);
+  const cartCount = useSelector(selectCartItemCount);
   const username = useSelector(selectUsername);
   const isAdmin = useSelector(selectIsAdmin);
 
-  const [tab, setTab] = useState(-1);
+  const tabValue = (() => {
+    if (location.pathname.startsWith("/products")) return 0;
+    if (location.pathname.startsWith("/profile")) return 1;
+    if (location.pathname.startsWith("/add-product")) return 2;
+    return -1;
+  })();
 
   const handleLogout = () => {
+    dispatch(clearCart());
     dispatch(logout());
     navigate("/login");
   };
 
-  const handleTabChange = (_: any, newValue: number) => setTab(newValue);
-
-  const renderContent = () => {
-    switch (tab) {
-      case 0:
-        return (
-          
-        <ProductsList />)
-      case 1:
-        return <Profile />;
-      case 2:
-        return isAdmin ? <AddProduct /> : null;
-      default:
-                return (
-          <>
-            <Fade in timeout={1200}>
-              <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-                <Box
-                  sx={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  width: "100%",
-                  height: "100vh",
-                  minHeight: "100vh",
-                  maxHeight: "none",
-                  zIndex: 0,
-                  overflow: "hidden",
-                  }}
-                >
-                  <Waves
-                  lineColor="#fff"
-                  backgroundColor="#3f6366"
-                  waveSpeedX={0.02}
-                  waveSpeedY={0.01}
-                  waveAmpX={40}
-                  waveAmpY={20}
-                  friction={0.9}
-                  tension={0.01}
-                  maxCursorMove={120}
-                  xGap={12}
-                  yGap={36}
-                  />
-                </Box>
-                <Box
-                  sx={{
-                    position: "relative",
-                    width: "100%",
-                    height: { xs: "60vh", md: "70vh" },
-                    minHeight: 350,
-                    maxHeight: 600,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    zIndex: 1,
-                    pointerEvents: "none",
-                  }}
-                >
-                  <Paper
-                    elevation={6}
-                    sx={{
-                      p: 3,
-                      borderRadius: 5,
-                      background: "rgba(255,255,255,0.85)",
-                      width: { xs: "90%", md: "60%" },
-                      minHeight: { xs: 200, md: 250 },
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      zIndex: 2,
-                      pointerEvents: "auto",
-                    }}
-                  >
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        color: "#3f6366",
-                        fontWeight: "bold",
-                        textAlign: "center",
-                     
-                        mb: 2,
-                      }}
-                    >
-                      <div className="danaYad-text">
-                        <TypingText
-                          text={`כשאת טובעת בכל האפשרויות,\nמתבלבלת בין זול ליוקרתי, בין סתמי למיוחד –\nהלב שלך רק רוצה לבחור נכון.\nמתנה שתאיר פנים, שתאמר בלי מילים: "חשבתי עלייך באמת".\nוזה בדיוק מה שאנחנו עושות.\n\nבSmartGifts – אנחנו בוחרות איתך.\nבחוכמה. ברגש. באהבה.`}
-                        />
-                      </div>
-                                       
-                    </Typography>
-                  </Paper>
-                </Box>
-              </Box>
-            </Fade>
-          </>
-        );
-    }
+  const handleTabChange = (_: any, newValue: number) => {
+    if (newValue === 0) navigate("/products");
+    if (newValue === 1) navigate("/profile");
+    if (newValue === 2) navigate("/add-product");
   };
 
   return (
@@ -150,7 +58,6 @@ const Home: FC<HomeProps> = () => {
       dir="rtl"
       sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
     >
-      {/* Header */}
       <AppBar
         position="fixed"
         sx={{ backgroundColor: "#fff", boxShadow: "none" }}
@@ -164,7 +71,10 @@ const Home: FC<HomeProps> = () => {
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <Tooltip title="SmartGifts">
-              <IconButton onClick={() => setTab(-1)} sx={{ color: "#c1dbca" }}>
+              <IconButton
+                onClick={() => navigate("/")}
+                sx={{ color: "#c1dbca" }}
+              >
                 <img
                   src={logo}
                   alt="SmartGifts Logo"
@@ -182,17 +92,18 @@ const Home: FC<HomeProps> = () => {
             )}
           </Box>
           <Tabs
-            value={tab}
+            value={tabValue}
             onChange={handleTabChange}
             textColor="secondary"
             indicatorColor="secondary"
             sx={{
               "& .MuiTab-root": {
-                color: "#666666",
+                color: "#7a7a7a",
                 fontWeight: "bold",
                 minWidth: 90,
+                "&.Mui-selected": { color: "#E56360" },
               },
-              "& .Mui-selected": { color: "#7a7a7a" },
+              "& .MuiTabs-indicator": { backgroundColor: "#E56360" },
             }}
           >
             <Tab label="המתנות שלנו" />
@@ -217,21 +128,111 @@ const Home: FC<HomeProps> = () => {
         </Toolbar>
       </AppBar>
 
-      {/* תוכן מרכזי */}
       <Container
         sx={{
           flexGrow: 1,
           marginTop: "6rem",
           paddingLeft: "2rem",
           position: "relative",
+          minHeight: "calc(100vh - 6rem)",
         }}
         maxWidth={false}
         disableGutters
       >
-        {renderContent()}
+        {location.pathname === "/" && (
+          <>
+            <Box
+              sx={{
+                position: "absolute",
+                left: 0,
+                top: 0,
+                width: "100%",
+                height: "100%",
+                zIndex: 0,
+                overflow: "hidden",
+                pointerEvents: "none",
+              }}
+            >
+              <Waves
+                lineColor="#fff"
+                backgroundColor="#5ea4a4"
+                waveSpeedX={0.02}
+                waveSpeedY={0.01}
+                waveAmpX={40}
+                waveAmpY={20}
+                friction={0.9}
+                tension={0.01}
+                maxCursorMove={120}
+                xGap={12}
+                yGap={36}
+              />
+            </Box>
+
+            <Fade in timeout={1200}>
+              <Box
+                sx={{
+                  position: "relative",
+                  width: "100%",
+                  height: "100%",
+                  minHeight: 350,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  zIndex: 1,
+                }}
+              >
+                <Paper
+                  elevation={6}
+                  sx={{
+                    p: 3,
+                    borderRadius: 5,
+                    background: "rgba(255,255,255,0.85)",
+                    width: { xs: "90%", md: "60%" },
+                    minHeight: { xs: 200, md: 250 },
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    margin: 10,
+                  }}
+                >
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      color: "#3f6366",
+                      fontWeight: "bold",
+                      textAlign: "center",
+                      mb: 2,
+                    }}
+                  >
+                    <div className="danaYad-text">
+                      <TypingText
+                        text={`
+                          SmartGifts - המתנה המושלמת מחכה לך
+                          כשמציפים אותך אלפי אפשרויות,\n כשמתלבטים בין זול ליוקרתי, בין רגיל למיוחד –\n הלב רק רוצה לבחור נכון.\n מתנה שתאיר פנים, שתגיד בלי מילים: "חשבתי עליך באמת"
+                          וזה בדיוק מה שאנחנו עושים.\n ב-SmartGifts – אנחנו בוחרים איתך.\n בחוכמה. ברגש. באהבה.
+                          המגוון שלנו:
+                          ✨ פינוק אישי - מתנות שמלטפות את הנשמה  
+                          💕 בילוי זוגי - חוויות משותפות בלתי נשכחות  
+                          🍫 אוכל ומתוקים - טעמים שמביאים שמחה  
+                          🎨 חוויות וסדנאות למידה ויצירה מרגשות  
+                          🏠 מתנות לבית - חמימות שנשארת לתמיד  
+                          ✡️ יהדות - מתנות עם משמעות רוחנית  
+                          📚 ספרים ולמידה - עולמות חדשים להכיר  
+                          👗 אופנה וסטייל - ביטוי אישי ייחודי  
+                          🎭 תרבות ובידור - רגעי הנאה וחוויה`}
+                      />
+                    </div>
+                  </Typography>
+                </Paper>
+              </Box>
+            </Fade>
+          </>
+        )}
+
+        <Outlet />
       </Container>
 
-      {/* Footer */}
       <Box
         sx={{
           flexShrink: 0,
