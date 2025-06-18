@@ -1,12 +1,16 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface AuthState {
+  userId: string | null;
   username: string | null;
+  email: string | null;
   isAdmin: boolean;
 }
 
 const initialState: AuthState = {
-  username: localStorage.getItem("displayName"),
+  userId: null,
+  username: null,
+  email: null,
   isAdmin: false,
 };
 
@@ -16,24 +20,32 @@ const authSlice = createSlice({
   reducers: {
     setUser(
       state,
-      action: PayloadAction<{ username: string; isAdmin: boolean }>
+      action: PayloadAction<{
+        userId: string;
+        username: string;
+        email: string;
+        isAdmin: boolean;
+      }>
     ) {
+      state.userId = action.payload.userId;
       state.username = action.payload.username;
+      state.email = action.payload.email;
       state.isAdmin = action.payload.isAdmin;
-      localStorage.setItem("displayName", action.payload.username);
     },
     logout(state) {
+      state.userId = null;
       state.username = null;
+      state.email = null;
       state.isAdmin = false;
-      localStorage.removeItem("displayName");
-      localStorage.removeItem("email");
     },
   },
 });
 
 export const { setUser, logout } = authSlice.actions;
 
+export const selectUserId = (state: any) => state.auth.userId;
 export const selectUsername = (state: any) => state.auth.username;
+export const selectEmail = (state: any) => state.auth.email;
 export const selectIsAdmin = (state: any) => state.auth.isAdmin;
 
 export default authSlice.reducer;

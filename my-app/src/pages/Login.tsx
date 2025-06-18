@@ -20,13 +20,14 @@ import InputAdornment from "@mui/material/InputAdornment";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import GoogleIcon from "@mui/icons-material/Google";
-import { login, loginWithGoogle, resetPassword,getUserRoleByEmail } from "../services/authService";
+import * as  authService from "../services/authService";
 import { useDispatch } from "react-redux";
 import { setUser } from "../redux/authSlice";
-const LoginSchema = Yup.object({
-  email: Yup.string().email("אימייל לא תקין").required("שדה חובה"),
-  password: Yup.string().required("שדה חובה"),
-});
+import { setCartUser } from "../redux/cartSlice";
+import { setMessage } from "../redux/messageSlice";
+
+
+
 
 const Login = () => {
   const [error, setError] = useState("");
@@ -37,50 +38,53 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
 
-  const togglePasswordVisibility = () => {
-    setShowPassword((prev) => !prev);
+
+const LoginSchema = Yup.object({
+  email: Yup.string().email("אימייל לא תקין").required("שדה חובה"),
+  password: Yup.string().required("שדה חובה"),
+});
+  const handleSubmit = async (values: { email: string; password: string }) => {
+    setError("");
+    try {
+      const user = await authService.login(values.email, values.password);
+      dispatch(setUser(user));
+       if (user.userId) {
+        dispatch(setCartUser(user.userId));
+      }
+      dispatch(setMessage({ type: "success", text: "ההתחברות הושלמה בהצלחה" }));
+
+      navigate("/");
+    } catch (e: any) {
+      dispatch(setMessage({ type: "error", text: "ההתחברות נכשלה" }));
+
+      setError(e.message || "התחברות נכשלה");
+    }
   };
+  const handleGoogleLogin = async () => {
+    setError("");
+    try {
+      const user = await authService.loginWithGoogle();
 
-const handleSubmit = async (values: { email: string; password: string }) => {
-  setError("");
-  try {
-    const user = await login(values.email, values.password);
-    dispatch(
-      setUser({
-        username: user.displayName ?? user.dbUser?.name ?? "",
-        isAdmin: user.dbUser?.role === "admin",
-      })
-    );
-    navigate("/");
-  } catch (e: any) {
-    setError(e.message || "התחברות נכשלה");
-  }
-};
-const handleGoogleLogin = async () => {
-  setError("");
-  try {
-    const user = await loginWithGoogle();
+      let role = (await authService.getUserRoleByEmail(user.email ?? "")) || "customer";
 
-    // שליפת role מהשרת (json-server)
-    let role = await getUserRoleByEmail(user.email ?? "") || "customer";
-    
-
-    dispatch(
-      setUser({
-        username: user.displayName ?? user.email ?? "",
-        isAdmin: role === "admin",
-      })
-    );
-    navigate("/");
-  } catch (e: any) {
-    setError("התחברות עם גוגל נכשלה");
-  }
-};
+      dispatch(
+        setUser({
+          userId: user.uid ?? "",
+          username: user.displayName ?? user.email ?? "",
+          email: user.email ?? "",
+          isAdmin: role === "admin",
+        })
+      );
+      navigate("/");
+    } catch (e: any) {
+      setError("התחברות עם גוגל נכשלה");
+    }
+  };
 
   const handleResetPassword = async () => {
     setResetMsg("");
     try {
-      await resetPassword(resetEmail);
+      await authService.resetPassword(resetEmail);
       setResetMsg("קישור לאיפוס סיסמה נשלח למייל");
     } catch (e: any) {
       setResetMsg("שליחת קישור נכשלה. ודא/י שהמייל תקין");
@@ -91,7 +95,7 @@ const handleGoogleLogin = async () => {
     <Box
       sx={{
         minHeight: "100vh",
-        background: "linear-gradient(135deg, #fff0f5 0%, #ffe4e1 100%)",
+        background: "linear-gradient(135deg, #fff0f5 0%, #C0D8DD 100%)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -116,7 +120,7 @@ const handleGoogleLogin = async () => {
           textAlign="center"
           fontWeight={600}
           mb={2}
-          color="#c2185b"
+          color="#E56360"
         >
           התחברות
         </Typography>
@@ -156,11 +160,11 @@ const handleGoogleLogin = async () => {
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     "&.Mui-focused fieldset": {
-                      borderColor: "#ec407a",
+                      borderColor: "#E56360",
                     },
                   },
                   "& label.Mui-focused": {
-                    color: "#c2185b",
+                    color: "#E56360",
                   },
                 }}
               />
@@ -181,12 +185,17 @@ const handleGoogleLogin = async () => {
                       <InputAdornment position="start">
                         {showPassword ? (
                           <VisibilityOffIcon
-                            onClick={togglePasswordVisibility}
+                            onClick={() => {
+                              setShowPassword(false);
+                            }}
                             style={{ cursor: "pointer" }}
                           />
                         ) : (
                           <VisibilityIcon
-                            onClick={togglePasswordVisibility}
+                            onClick={() => {
+                              setShowPassword(true);
+                              setTimeout(() => setShowPassword(false), 1000);
+                            }}
                             style={{ cursor: "pointer" }}
                           />
                         )}
@@ -197,11 +206,11 @@ const handleGoogleLogin = async () => {
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     "&.Mui-focused fieldset": {
-                      borderColor: "#ec407a",
+                      borderColor: "#E56360",
                     },
                   },
                   "& label.Mui-focused": {
-                    color: "#c2185b",
+                    color: "#E56360",
                   },
                 }}
               />
@@ -212,14 +221,14 @@ const handleGoogleLogin = async () => {
                   variant="contained"
                   sx={{
                     py: 1.5,
-                    background: "#ec407a",
+                    background: "#E56360",
                     color: "white",
                     borderRadius: 3,
                     fontWeight: "bold",
                     fontSize: "1rem",
                     transition: "0.3s",
                     "&:hover": {
-                      background: "#d81b60",
+                      background: "#c94b4b",
                     },
                   }}
                 >
@@ -235,35 +244,42 @@ const handleGoogleLogin = async () => {
                     borderRadius: 3,
                     fontWeight: "bold",
                     fontSize: "1rem",
-                    color: "#c2185b",
-                    borderColor: "#ec407a",
+                    color: "#E56360",
+                    borderColor: "#E56360",
+                    background: "white",
                     "&:hover": {
-                      background: "#fff0f5",
-                      borderColor: "#d81b60",
+                      background: "#ffe4e1",
+                      borderColor: "#c94b4b",
+                      color: "#c94b4b",
                     },
                   }}
                 >
                   התחברות עם גוגל
                 </Button>
               </Stack>
-            
-              {error && (
-                <>
-                  <Typography mt={2} textAlign="center">
-                    <a href="/register">עדיין אין לך חשבון? לחץ כאן להרשמה</a>
+               <Typography mt={2} textAlign="center">
+                    <a href="/register" className="login-link">
+                      עדיין אין לך חשבון? לחץ כאן להרשמה
+                    </a>
                   </Typography>
+              {error !== "" && (                 
                   <Typography mt={1} textAlign="center">
                     <Button
                       variant="text"
-                      sx={{ color: "#c2185b", fontSize: "0.95rem" }}
+                      sx={{
+                        color: "#E56360",
+                        fontSize: "0.95rem",
+                        "&:hover": {
+                          color: "#c94b4b",
+                          background: "transparent",
+                        },
+                      }}
                       onClick={() => setResetOpen(true)}
                     >
                       ?שכחת סיסמה
                     </Button>
                   </Typography>
-                </>
               )}
-              
             </Form>
           )}
         </Formik>
@@ -276,7 +292,7 @@ const handleGoogleLogin = async () => {
           setResetMsg("");
         }}
       >
-        <DialogTitle>איפוס סיסמה</DialogTitle>
+        <DialogTitle sx={{ color: "#E56360" }}>איפוס סיסמה</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
@@ -301,7 +317,7 @@ const handleGoogleLogin = async () => {
           <Button
             onClick={handleResetPassword}
             variant="contained"
-            sx={{ background: "#ec407a" }}
+            sx={{ background: "#E56360" }}
           >
             שלח קישור לאיפוס
           </Button>
@@ -313,12 +329,14 @@ const handleGoogleLogin = async () => {
           from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        a {
-          color: #c2185b;
+        .login-link {
+          color: #E56360;
           text-decoration: none;
           font-weight: 500;
+          transition: color 0.2s;
         }
-        a:hover {
+        .login-link:hover {
+          color: #c94b4b;
           text-decoration: underline;
         }
       `}</style>
