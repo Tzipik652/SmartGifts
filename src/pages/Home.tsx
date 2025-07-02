@@ -27,6 +27,7 @@ import { clearCart, selectCartItemCount } from "../redux/cartSlice";
 interface HomeProps {}
 
 const Home: FC<HomeProps> = () => {
+  const [mounted, setMounted] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
@@ -34,6 +35,9 @@ const Home: FC<HomeProps> = () => {
   const username = useSelector(selectUsername);
   const isAdmin = useSelector(selectIsAdmin);
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   const tabValue = (() => {
     if (location.pathname.startsWith("/products")) return 0;
     if (location.pathname.startsWith("/profile")) return 1;
@@ -134,7 +138,7 @@ const Home: FC<HomeProps> = () => {
           marginTop: "6rem",
           paddingLeft: "2rem",
           position: "relative",
-          minHeight: "calc(100vh - 6rem)",
+          height: location.pathname === "/" ? "calc(100vh - 6rem)" : "auto",
         }}
         maxWidth={false}
         disableGutters

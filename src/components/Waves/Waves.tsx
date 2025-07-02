@@ -422,9 +422,16 @@ const Waves: React.FC<WavesProps> = ({
       ref={containerRef}
       style={{
         backgroundColor,
+         position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100vw",
+          height: "100vh",
+          overflow: "hidden",
+          pointerEvents: "none",
         ...style,
       }}
-      className={`absolute top-0 left-0 w-full h-full overflow-hidden ${className}`}
+      className={className}
     >
       <div
         className="absolute top-0 left-0 bg-[#160000] rounded-full w-[0.5rem] h-[0.5rem]"
