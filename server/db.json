@@ -1,13 +1,6 @@
 {
   "users": [
     {
-      "id": "f64b",
-      "name": "בתיה קרויזר",
-      "email": "batya@gmail.com",
-      "password": "222222",
-      "role": "admin"
-    },
-    {
       "id": "ae40",
       "name": "ציפיק הפקות",
       "email": "tzipik652@gmail.com",
@@ -132,6 +125,13 @@
       "password": "6234nk",
       "role": "customer",
       "id": "nNIk8G9"
+    },
+    {
+      "name": "Smart Gifts Manager",
+      "email": "manager@smartgifts.com",
+      "password": "222222",
+      "role": "admin",
+      "id": "96DPhA7"
     }
   ],
   "products": [
@@ -972,6 +972,27 @@
       "comment": "כאבו לי השרירים אח\"כ",
       "rating": 2,
       "id": "xGHg6jG"
+    },
+    {
+      "productId": "51",
+      "userId": "",
+      "comment": "זה היה מפחיד מידי!!\n",
+      "rating": 2,
+      "id": "m4oa4ps"
+    },
+    {
+      "productId": "51",
+      "userId": "",
+      "comment": "זה היה מפחיד מידי!!",
+      "rating": 2,
+      "id": "q75KM3E"
+    },
+    {
+      "productId": "1",
+      "userId": "",
+      "comment": "שלום",
+      "rating": 1,
+      "id": "H6fikgd"
     }
   ]
 }

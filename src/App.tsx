@@ -16,23 +16,24 @@ import { Box, CircularProgress } from '@mui/material';
 const AddProduct = lazy(() => import('./pages/AddProduct'));
 
 const App:React.FC = () => {
+  
   return (
     <>
       <GlobalMessage />
- <Suspense
-      fallback={
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "80vh",
-          }}
-        >
-          <CircularProgress color="secondary" />
-        </Box>
-      }
-    >
+      <Suspense
+            fallback={
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "80vh",
+                }}
+              >
+                <CircularProgress color="secondary" />
+              </Box>
+            }
+          >
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />

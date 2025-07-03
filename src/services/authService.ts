@@ -71,6 +71,8 @@ export const login = async (email: string, password: string) => {
         userEmail
       )}&password=${encodeURIComponent(password)}`
     );
+
+
     const dbUser = dbUserResponse.data[0];
 
     return {
