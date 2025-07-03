@@ -62,6 +62,7 @@ export const updateUser = async (userId: string, updatedData: any) => {
 export const login = async (email: string, password: string) => {
   try {
     const result = await signInWithEmailAndPassword(auth, email, password);
+    
     const user = result.user;
     const displayName = user.displayName || "";
     const userEmail = user.email || "";
@@ -72,11 +73,10 @@ export const login = async (email: string, password: string) => {
       )}&password=${encodeURIComponent(password)}`
     );
 
-
     const dbUser = dbUserResponse.data[0];
 
     return {
-      userId: dbUser?.id || "",
+      userId: dbUser?.id ||  result.user.uid || "",
       username: dbUser?.name || displayName || "",
       email: dbUser?.email || userEmail,
       isAdmin: dbUser?.role === "admin",

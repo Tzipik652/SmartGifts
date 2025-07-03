@@ -20,7 +20,7 @@ import { register } from "../services/authService";
 import { useDispatch } from "react-redux";
 import { setMessage } from "../redux/messageSlice";
 
-const Register = () => {
+const Register : React.FC = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -39,8 +39,13 @@ const Register = () => {
 const RegisterSchema = Yup.object({
   name: Yup.string().required("שדה חובה"),
   email: Yup.string().email("אימייל לא תקין").required("שדה חובה"),
-  password: Yup.string()
-    .min(6, "סיסמה חייבת להיות לפחות 6 תווים")
+  password: Yup
+    .string()
+    .min(8, 'הסיסמה חייבת להכיל לפחות 8 תווים')
+    .matches(/[A-Z]/, 'הסיסמה חייבת להכיל אות גדולה')
+    .matches(/[a-z]/, 'הסיסמה חייבת להכיל אות קטנה')
+    .matches(/\d/, 'הסיסמה חייבת להכיל מספר')
+    .matches(/[!@#$%^&*]/, 'הסיסמה חייבת להכיל תו מיוחד')
     .required("שדה חובה"),
 });
 

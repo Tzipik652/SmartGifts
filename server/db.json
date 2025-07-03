@@ -132,6 +132,13 @@
       "password": "222222",
       "role": "admin",
       "id": "96DPhA7"
+    },
+    {
+      "name": "לילה",
+      "email": "night@gmail.com",
+      "password": "12345Aa!",
+      "role": "customer",
+      "id": "ewIwmfA"
     }
   ],
   "products": [
@@ -158,14 +165,6 @@
       "price": 140,
       "imageUrl": "https://img.freepik.com/free-photo/delicious-breakfast-table_144627-40943.jpg?w=740",
       "category": "אוכל ומתוקים"
-    },
-    {
-      "id": "4",
-      "name": "כרטיס זוגי לקולנוע VIP",
-      "description": "החוויה הקולנועית האולטימטיבית",
-      "price": 110,
-      "imageUrl": "https://img.freepik.com/free-photo/empty-cinema-hall-with-comfortable-seats_181624-57358.jpg?w=740",
-      "category": "תרבות ובידור"
     },
     {
       "id": "5",
@@ -946,20 +945,6 @@
   ],
   "opinions": [
     {
-      "id": "1",
-      "productId": "1",
-      "userId": "f64b",
-      "rating": 5,
-      "comment": "Great product!"
-    },
-    {
-      "id": "2",
-      "productId": "2",
-      "userId": "f64b",
-      "rating": 4,
-      "comment": "Very good quality."
-    },
-    {
       "productId": "2",
       "userId": "ae40",
       "comment": "מקסים מקסים!!\nהיה נפלא!!🤩",
@@ -974,25 +959,32 @@
       "id": "xGHg6jG"
     },
     {
-      "productId": "51",
-      "userId": "",
-      "comment": "זה היה מפחיד מידי!!\n",
-      "rating": 2,
-      "id": "m4oa4ps"
-    },
-    {
-      "productId": "51",
-      "userId": "",
-      "comment": "זה היה מפחיד מידי!!",
-      "rating": 2,
-      "id": "q75KM3E"
+      "productId": "1",
+      "userId": "FpKYCuSnKnRlMvhOdrjE3KxTF5F2",
+      "comment": "שלוםם",
+      "rating": 5,
+      "id": "e-p0Mrx"
     },
     {
       "productId": "1",
-      "userId": "",
-      "comment": "שלום",
+      "userId": "ewIwmfA",
+      "comment": "אני מאד עייפה🥱\nזה יכול להיות מקסים משו בהפתעה",
+      "rating": 5,
+      "id": "Shc5yeF"
+    },
+    {
+      "productId": "1",
+      "userId": "ewIwmfA",
+      "comment": "אז לכי לישון!!",
       "rating": 1,
-      "id": "H6fikgd"
+      "id": "KcXCT2d"
+    },
+    {
+      "productId": "1",
+      "userId": "ewIwmfA",
+      "comment": "טוב לילה טוב!!",
+      "rating": 3,
+      "id": "cHQa19G"
     }
   ]
 }

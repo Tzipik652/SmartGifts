@@ -19,7 +19,7 @@ import {
   Paper,
 } from "@mui/material";
 
-const MyCart = () => {
+const MyCart :React.FC = () => {
   const dispatch = useDispatch();
   const cartItems = useSelector(selectCartItems);
   const cartItemsCount = useSelector(selectCartItemCount);

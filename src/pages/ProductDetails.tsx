@@ -22,7 +22,13 @@ import { addToCart } from "../redux/cartSlice";
 import { Product } from "../models/product";
 import { selectIsAdmin, selectUserId } from "../redux/authSlice";
 import { getProductById } from "../services/productService";
-import { addOpinion, deleteOpinion, getgetOpinionsByProductId } from "../services/opinionsService";
+import {
+  addOpinion,
+  deleteOpinion,
+  getgetOpinionsByProductId,
+} from "../services/opinionsService";
+import axios from "axios";
+import { setMessage } from "../redux/messageSlice";
 
 const labels: { [index: number]: string } = {
   1: "גרוע",
@@ -36,7 +42,7 @@ function getLabelText(value: number) {
   return `${value} כוכבים, ${labels[value]}`;
 }
 
-const ProductDetails = () => {
+const ProductDetails: React.FC = () => {
   const { id } = useParams();
   const [product, setProduct] = useState<Product>({
     id: "",
@@ -51,48 +57,110 @@ const ProductDetails = () => {
   const [newOpinion, setNewOpinion] = useState("");
   const [rating, setRating] = useState<number>(5);
   const [hover, setHover] = useState<number>(-1);
+  const [loading, setLoading] = useState(true);
 
   const isAdmin = useSelector(selectIsAdmin);
   const userId = useSelector(selectUserId);
   const dispatch = useDispatch();
 
+  const fetchOpinionsWithUsernames = async () => {
+    try {
+      const opinionsFromServer = await getgetOpinionsByProductId(id!);
+      const usersResponse = await axios.get("http://localhost:3001/users");
+      const users = usersResponse.data;
+
+      const enriched = opinionsFromServer.map((opinion: any) => {
+        const user = users.find((u: any) => u.id === opinion.userId);
+        return {
+          ...opinion,
+          username: user?.name || "משתמש",
+        };
+      });
+
+      setOpinions(enriched);
+    } catch (error) {
+      dispatch(setMessage({ type: "error", text: "שגיאה בטעינת חוות הדעת"})); 
+      console.error("שגיאה בטעינת חוות הדעת:", error);
+    }
+  };
+
+  // טען מוצר
   useEffect(() => {
-    getProductById(id|| "")
-      .then(setProduct);
+    if (id) {
+      setLoading(true);
+      getProductById(id)
+        .then((data) => {
+          setProduct(data);
+          setLoading(false);
+        })
+        .catch((err) => {
+          dispatch(setMessage({ type: "error", text: "שגיאה בטעינת המוצר"}));  
+          console.error("שגיאה בטעינת המוצר:", err);
+          setLoading(false);
+        });
+    }
   }, [id]);
 
   useEffect(() => {
-    getgetOpinionsByProductId(id || "")
-      .then(setOpinions);
+    if (id) {
+      fetchOpinionsWithUsernames();
+    }
   }, [id]);
 
   const handleAddToCart = () => {
-    dispatch(addToCart({userId,product}));
+    dispatch(addToCart({ userId, product }));
   };
 
-  const handleDeleteOpinion = (opinionId: string) => {
-    deleteOpinion(opinionId)
-    .then(() =>
-      setOpinions((prev) => prev.filter((op) => op.id !== opinionId))
+  const handleDeleteOpinion = async (opinionId: string) => {
+    try {
+      await deleteOpinion(opinionId);
+      setOpinions((prev) => prev.filter((op) => op.id !== opinionId));
+    } catch (error) {
+      dispatch(setMessage({ type: "error", text: "שגיאה במחיקת חוות הדעת"}));      
+      console.error("שגיאה במחיקת חוות הדעת:", error);
+    }
+  };
+
+  const handleAddOpinion = async () => {
+    try {
+      const newOpinionData = {
+        productId: id,
+        userId,
+        comment: newOpinion,
+        rating,
+      };
+
+      await addOpinion(newOpinionData);
+      dispatch(setMessage({ type: "info", text: "חוות הדעת נשמרה במערכת, בכל שלב תוכל למחוק או לערוך אותה"}));  
+
+      await fetchOpinionsWithUsernames(); 
+
+      setOpenOpinion(false);
+      setNewOpinion("");
+      setRating(5);
+      setHover(-1);
+    } catch (error) {
+      dispatch(setMessage({ type: "error", text: "שגיאה בהוספת חוות הדעת"}));  
+      console.error("שגיאה בהוספת חוות הדעת:", error);
+      alert("❌ שגיאה בשמירת חוות הדעת.");
+    }
+  };
+
+  if (loading) {
+    return (
+      <Box sx={{ maxWidth: 600, mx: "auto", mt: 4, textAlign: "center" }}>
+        <Typography variant="h6">טוען...</Typography>
+      </Box>
     );
-  };
+  }
 
-  const handleAddOpinion = () => {
-    const newOpinionData = {
-      productId: id,
-      userId: userId,
-      comment: newOpinion,
-      rating: rating,
-    };
-    addOpinion(newOpinionData)  
-      .then((op) => setOpinions((prev) => [...prev, op]));
-
-    setOpenOpinion(false);
-    setNewOpinion("");
-    setRating(5);
-  };
-
-  if (!product) return <div>טוען...</div>;
+  if (!product.id) {
+    return (
+      <Box sx={{ maxWidth: 600, mx: "auto", mt: 4, textAlign: "center" }}>
+        <Typography variant="h6">מוצר לא נמצא</Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ maxWidth: 600, mx: "auto", mt: 4 }}>
@@ -140,8 +208,11 @@ const ProductDetails = () => {
             <Box>
               <Rating name="read-only" value={op.rating} readOnly />
               <Typography>{op.comment}</Typography>
+              <Typography variant="caption" color="textSecondary">
+                משתמש: {op.username}
+              </Typography>
             </Box>
-            {userId && op.userId === userId && (
+            {op.userId === userId && (
               <IconButton
                 onClick={() => handleDeleteOpinion(op.id)}
                 color="error"
@@ -152,7 +223,7 @@ const ProductDetails = () => {
           </Box>
         ))}
 
-        {!isAdmin && (
+        {!isAdmin && userId && (
           <Button
             sx={{ mt: 2 }}
             variant="outlined"
@@ -173,7 +244,7 @@ const ProductDetails = () => {
             minRows={2}
             value={newOpinion}
             onChange={(e) => setNewOpinion(e.target.value)}
-            sx={{ mb: 2 }}
+            sx={{ mb: 2, mt: 1 }}
           />
 
           <Rating
@@ -187,10 +258,14 @@ const ProductDetails = () => {
             onChangeActive={(event, newHover) => {
               setHover(newHover);
             }}
-            emptyIcon={<StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />}
+            emptyIcon={
+              <StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />
+            }
           />
           {rating !== null && (
-            <Box sx={{ ml: 2 }}>{labels[hover !== -1 ? hover : rating]}</Box>
+            <Box sx={{ ml: 2 }}>
+              {labels[hover !== -1 ? hover : rating]}
+            </Box>
           )}
         </DialogContent>
         <DialogActions>
@@ -198,7 +273,7 @@ const ProductDetails = () => {
           <Button
             onClick={handleAddOpinion}
             variant="contained"
-            disabled={!newOpinion}
+            disabled={!newOpinion.trim()}
           >
             שמור
           </Button>

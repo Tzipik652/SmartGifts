@@ -29,13 +29,13 @@ import { setMessage } from "../redux/messageSlice";
 
 
 
-const Login = () => {
+const Login :React.FC = () => {
   const [error, setError] = useState("");
   const [resetEmail, setResetEmail] = useState("");
   const [resetMsg, setResetMsg] = useState("");
   const [resetOpen, setResetOpen] = useState(false);
-  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
   const dispatch = useDispatch();
 
 
